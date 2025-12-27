@@ -140,9 +140,8 @@ func (c *callEngine) CallWithStack(ctx context.Context, paramResultStack []uint6
 // CallWithStack implements api.Function.
 func (c *callEngine) callWithStack(ctx context.Context, paramResultStack []uint64) (err error) {
 	p := c.parent
-	ensureTermination := p.parent.ensureTermination
 	m := p.module
-	if ensureTermination {
+	if true {
 		select {
 		case <-ctx.Done():
 			// If the provided context is already done, close the module and return the error.
@@ -179,7 +178,7 @@ func (c *callEngine) callWithStack(ctx context.Context, paramResultStack []uint6
 		}
 	}()
 
-	if ensureTermination {
+	if true {
 		done := m.CloseModuleOnCanceledOrTimeout(ctx)
 		defer done()
 	}

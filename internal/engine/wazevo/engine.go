@@ -57,11 +57,10 @@ type (
 	compiledModule struct {
 		executable []byte
 		// functionOffsets maps a local function index to the offset in the executable.
-		functionOffsets   []int
-		parent            *engine
-		module            *wasm.Module
-		entryPreambles    []*byte // indexed-correlated with the type index.
-		ensureTermination bool
+		functionOffsets []int
+		parent          *engine
+		module          *wasm.Module
+		entryPreambles  []*byte // indexed-correlated with the type index.
 
 		// The followings are only available for non host modules.
 
@@ -112,7 +111,6 @@ func (e *engine) compileModule(ctx context.Context, module *wasm.Module, listene
 	e.rels = e.rels[:0]
 	cm := &compiledModule{
 		offsets: wazevoapi.NewModuleContextOffsetData(module), parent: e, module: module,
-		ensureTermination: ensureTermination,
 	}
 
 	if module.IsHostModule {
@@ -136,7 +134,7 @@ func (e *engine) compileModule(ctx context.Context, module *wasm.Module, listene
 
 	// Creates new compiler instances which are reused for each function.
 	ssaBuilder := ssa.NewBuilder()
-	fe := frontend.NewFrontendCompiler(module, ssaBuilder, &cm.offsets, ensureTermination)
+	fe := frontend.NewFrontendCompiler(module, ssaBuilder, &cm.offsets)
 	machine := newMachine()
 	be := backend.NewCompiler(ctx, machine, ssaBuilder)
 
