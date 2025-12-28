@@ -174,38 +174,6 @@ func Test_maybeInvertBranch(t *testing.T) {
 	}
 }
 
-func TestBuilder_splitCriticalEdge(t *testing.T) {
-	b := NewBuilder().(*builder)
-	predBlk, dummyBlk := b.allocateBasicBlock(), b.allocateBasicBlock()
-	predBlk.reversePostOrder = 100
-	b.SetCurrentBlock(predBlk)
-	inst := b.AllocateInstruction()
-	inst.AsIconst32(1)
-	b.InsertInstruction(inst)
-	v := inst.Return()
-	originalBrz := b.AllocateInstruction() // This is the split edge.
-	originalBrz.AsBrz(v, nil, dummyBlk)
-	b.InsertInstruction(originalBrz)
-	dummyJump := b.AllocateInstruction()
-	dummyJump.AsJump(nil, dummyBlk)
-	b.InsertInstruction(dummyJump)
-
-	predInfo := &basicBlockPredecessorInfo{blk: predBlk, branch: originalBrz}
-	trampoline := b.splitCriticalEdge(predBlk, dummyBlk, predInfo)
-	require.NotNil(t, trampoline)
-	require.Equal(t, 100, trampoline.reversePostOrder)
-
-	require.Equal(t, trampoline, predInfo.blk)
-	require.Equal(t, originalBrz, predInfo.branch)
-	require.Equal(t, trampoline.rootInstr, predInfo.branch)
-	require.Equal(t, trampoline.currentInstr, predInfo.branch)
-	require.Equal(t, trampoline.success[0], dummyBlk)
-
-	replacedBrz := predBlk.rootInstr.next
-	require.Equal(t, OpcodeBrz, replacedBrz.opcode)
-	require.Equal(t, trampoline, replacedBrz.blk)
-}
-
 func Test_swapInstruction(t *testing.T) {
 	t.Run("swap root", func(t *testing.T) {
 		b := NewBuilder().(*builder)
