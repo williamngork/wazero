@@ -17,11 +17,9 @@ type Compiler struct {
 	m      *wasm.Module
 	offset *wazevoapi.ModuleContextOffsetData
 	// ssaBuilder is a ssa.Builder used by this frontend.
-	ssaBuilder             ssa.Builder
-	signatures             map[*wasm.FunctionType]*ssa.Signature
-	memoryGrowSig          ssa.Signature
-	checkModuleExitCodeSig ssa.Signature
-	checkModuleExitCodeArg [1]ssa.Value
+	ssaBuilder    ssa.Builder
+	signatures    map[*wasm.FunctionType]*ssa.Signature
+	memoryGrowSig ssa.Signature
 
 	// Followings are reset by per function.
 
@@ -72,12 +70,6 @@ func NewFrontendCompiler(m *wasm.Module, ssaBuilder ssa.Builder, offset *wazevoa
 	}
 	c.ssaBuilder.DeclareSignature(&c.memoryGrowSig)
 
-	c.checkModuleExitCodeSig = ssa.Signature{
-		ID: c.memoryGrowSig.ID + 1,
-		// Only takes execution context.
-		Params: []ssa.Type{ssa.TypeI64},
-	}
-	c.ssaBuilder.DeclareSignature(&c.checkModuleExitCodeSig)
 	return c
 }
 
